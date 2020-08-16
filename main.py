@@ -81,9 +81,12 @@ if __name__ == '__main__':
             lr=learning_rate, decay=lr_decay, momentum=0.9, nesterov=True)
     model = importlib.import_module(
             '.' + args.model, 'models').model 
+    # model.compile(
+            # loss='categorical_crossentropy', optimizer=sgd,
+            # metrics=['accuracy'], run_eagerly = True)
     model.compile(
             loss='categorical_crossentropy', optimizer=sgd,
-            metrics=['accuracy'], run_eagerly = True)
+            metrics=['accuracy'])
 
     input_shape = tf.TensorShape([None, 32, 32, 3])
     model.build(input_shape)
