@@ -83,7 +83,7 @@ if __name__ == '__main__':
             '.' + args.model, 'models').model 
     model.compile(
             loss='categorical_crossentropy', optimizer=sgd,
-            metrics=['accuracy'])
+            metrics=['accuracy'], run_eagerly = True)
 
     input_shape = tf.TensorShape([None, 32, 32, 3])
     model.build(input_shape)
