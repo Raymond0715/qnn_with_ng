@@ -7,8 +7,8 @@ from quantization import QuantilizeFn
 
 import pdb
 
-BITW = 1
-BITA = 1
+BITW = 4
+BITA = 4
 QuantilizeWeight, QuantilizeActivation = QuantilizeFn(BITW, BITA)
 
 def QuantilizeWeightsWrap(layer):
