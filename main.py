@@ -36,14 +36,10 @@ batch_size = args.batch_size
 num_epochs = args.num_epochs
 
 def normalize(X_train,X_test):
-    # this function normalize inputs for zero mean and unit variance
-    # it is used when training a model.
-    # Input: training set and test set
-    # Output: normalized training set and test set according to the trianing set statistics.
-    mean = np.mean(X_train,axis=(0, 1, 2, 3))
-    std = np.std(X_train, axis=(0, 1, 2, 3))
+    mean    = np.mean(X_train,axis=(0, 1, 2, 3))
+    std     = np.std(X_train, axis=(0, 1, 2, 3))
     X_train = (X_train-mean)/(std+1e-7)
-    X_test = (X_test-mean)/(std+1e-7)
+    X_test  = (X_test-mean)/(std+1e-7)
     return X_train, X_test
 
 
@@ -56,14 +52,13 @@ if __name__ == '__main__':
         # The data, shuffled and split between train and test sets:
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
         x_train = x_train.astype('float32')
-        x_test = x_test.astype('float32')
+        x_test  = x_test.astype('float32')
 
         # Normalization 
         x_train, x_test = normalize(x_train, x_test)
 
         y_train = tf.keras.utils.to_categorical(y_train, 10)
         y_test  = tf.keras.utils.to_categorical(y_test, 10)
-
 
     # model = cifar10vgg(False)
     # y_pred = model.predict(x_test)
@@ -89,8 +84,12 @@ if __name__ == '__main__':
     model.compile(
             loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-    # training process in a for loop with learning rate drop every 25 epoches.
-    # historytemp = model.fit_generator(
+    # # [DEBUG]
+    # input_shape = tf.TensorShape([None, 32, 32, 3])
+    # model.build(input_shape)
+    # pdb.set_trace()
+
+    # training process in a for loop with learning rate drop every 20 epoches.
     historytemp = model.fit(
             datagen.flow(x_train, y_train, batch_size = batch_size), 
             steps_per_epoch=x_train.shape[0] // batch_size, 
@@ -98,10 +97,3 @@ if __name__ == '__main__':
             validation_data=(x_test, y_test),
             callbacks=[reduce_lr],
             verbose=2)
-    # pdb.set_trace()
-
-    # predicted_x = model.predict(x_test)
-    # residuals = np.argmax(predicted_x,1)!=np.argmax(y_test,1)
-
-    # loss = sum(residuals)/len(residuals)
-    # print("the validation 0/1 loss is: ",loss)
