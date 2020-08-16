@@ -30,6 +30,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
             weight_decay = 0.0005):
 
         super(ResnetUnitL2, self).__init__()
+        self.strides = strides
         self.first = first
         self.quantization = quantization
 
@@ -51,6 +52,17 @@ class ResnetUnitL2(tf.keras.layers.Layer):
                     padding = 'same', use_bias = False,
                     kernel_regularizer = regularizers.l2(weight_decay))
             self.bn_shortcut = BatchNormalization()
+
+    def build(self, input_shape):
+        if self.first:
+            self.conv_shortcut.build(input_shape)
+        self.conv2a.build(input_shape)
+        input_shape_conv2b = tf.TensorShape(
+                [None, 
+                    int(input_shape[1] / self.strides), 
+                    int(input_shape[2] / self.strides), 
+                    input_shape[3]])
+        self.conv2b.build(input_shape_conv2b)
 
     def call(self, input_tensor):
         if self.first:
@@ -139,6 +151,10 @@ class Resnet20(tf.keras.Model):
                 3, 64, 2, 
                 quantization = quantization, 
                 weight_decay = weight_decay)
+    def build(self, input_shape):
+        self.conv_first.build(input_shape)
+        input_shape_dense = tf.TensorShape([None, 64])
+        self.dense.build(input_shape_dense)
 
     def call(self, input_tensor):
         if self.quantization:
@@ -163,7 +179,7 @@ class Resnet20(tf.keras.Model):
 
 weight_decay = 0.0005
 class_num = 10
-quantization = False
+quantization = True
 
 model = Resnet20(weight_decay, class_num, quantization = quantization)
 

@@ -82,12 +82,11 @@ if __name__ == '__main__':
     model = importlib.import_module(
             '.' + args.model, 'models').model 
     model.compile(
-            loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+            loss='categorical_crossentropy', optimizer=sgd,
+            metrics=['accuracy'], run_eagerly = True)
 
-    # # [DEBUG]
-    # input_shape = tf.TensorShape([None, 32, 32, 3])
-    # model.build(input_shape)
-    # pdb.set_trace()
+    input_shape = tf.TensorShape([None, 32, 32, 3])
+    model.build(input_shape)
 
     # training process in a for loop with learning rate drop every 20 epoches.
     historytemp = model.fit(
