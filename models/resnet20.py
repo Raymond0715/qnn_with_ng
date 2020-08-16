@@ -171,8 +171,8 @@ class Resnet20(tf.keras.Model):
 
         x = MaxPooling2D(pool_size = 8)(x)
         x = Flatten()(x)
-        if self.quantization:
-            QuantilizeWeightsWrap(self.dense)
+        # if self.quantization:
+            # QuantilizeWeightsWrap(self.dense)
         x = self.dense(x)
 
         return Activation('softmax')(x)
