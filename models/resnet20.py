@@ -38,16 +38,18 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         # self.conv2a = Conv2D( 
                 # outputs_depth, 3, strides, padding = 'same', use_bias = False,
                 # kernel_regularizer = regularizers.l2(weight_decay))
-        self.conv2a = QConv2D(outputs_depth, 3, strides, 
-                quantilize = self.quantization, use_bias = False)
+        self.conv2a = QConv2D(
+                outputs_depth, 3, strides, quantilize = self.quantization, 
+                weight_decay = weight_decay, use_bias = False)
             
         self.bn2a = BatchNormalization()
         
         # self.conv2b = Conv2D(
                 # outputs_depth, 3, padding='same', use_bias = False,
                 # kernel_regularizer = regularizers.l2(weight_decay))
-        self.conv2b = QConv2D(outputs_depth, 3, quantilize = self.quantization,
-                use_bias = False)
+        self.conv2b = QConv2D(
+                outputs_depth, 3, quantilize = self.quantization,
+                weight_decay = weight_decay, use_bias = False)
 
         self.bn2b = BatchNormalization()
 
@@ -58,7 +60,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
                     # kernel_regularizer = regularizers.l2(weight_decay))
             self.conv_shortcut = QConv2D(
                     outputs_depth, 1, strides, quantilize = self.quantization, 
-                    use_bias = False)
+                    weight_decay = weight_decay, use_bias = False)
             self.bn_shortcut = BatchNormalization()
 
     # def build(self, input_shape):
@@ -144,7 +146,8 @@ class Resnet20(tf.keras.Model):
                 # 16, 3, padding = 'same', use_bias = False,
                 # kernel_regularizer = regularizers.l2(weight_decay))
         self.conv_first = QConv2D(
-                16, 3, quantilize = self.quantization, use_bias = False)
+                16, 3, quantilize = self.quantization, 
+                weight_decay = weight_decay, use_bias = False)
         self.bn_first = BatchNormalization()
         self.dense = Dense(
                 class_num, 
@@ -189,9 +192,10 @@ class Resnet20(tf.keras.Model):
         return Activation('softmax')(x)
 
 # weight_decay = 0.0005
+# quantization = False
 weight_decay = 0
-class_num = 10
 quantization = True
+class_num = 10
 
 model = Resnet20(weight_decay, class_num, quantization = quantization)
 
