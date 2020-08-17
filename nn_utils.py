@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import regularizers
 from quantization import QuantilizeFn, tangent
+import pdb
 
 BITW = 4
 BITA = 4
