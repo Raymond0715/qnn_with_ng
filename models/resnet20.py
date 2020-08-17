@@ -188,7 +188,8 @@ class Resnet20(tf.keras.Model):
 
         return Activation('softmax')(x)
 
-weight_decay = 0.0005
+# weight_decay = 0.0005
+weight_decay = 0
 class_num = 10
 quantization = True
 
