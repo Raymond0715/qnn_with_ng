@@ -12,14 +12,6 @@ BITW = 4
 BITA = 4
 QuantilizeWeight, QuantilizeActivation = QuantilizeFn(BITW, BITA)
 
-# def QuantilizeWeightsWrap(layer):
-    # weights_and_bias = layer.get_weights()
-    # weights_tensor = tf.convert_to_tensor(
-            # weights_and_bias[0])
-    # quantilize_weights = QuantilizeWeight(weights_tensor)
-    # weights_and_bias[0] = quantilize_weights.numpy()
-    # layer.set_weights(weights_and_bias)
-
 
 class ResnetUnitL2(tf.keras.layers.Layer):
     def __init__(
@@ -35,18 +27,12 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         self.first = first
         self.quantization = quantization
 
-        # self.conv2a = Conv2D( 
-                # outputs_depth, 3, strides, padding = 'same', use_bias = False,
-                # kernel_regularizer = regularizers.l2(weight_decay))
         self.conv2a = QConv2D(
                 outputs_depth, 3, strides, quantilize = self.quantization, 
                 weight_decay = weight_decay, use_bias = False)
             
         self.bn2a = BatchNormalization()
         
-        # self.conv2b = Conv2D(
-                # outputs_depth, 3, padding='same', use_bias = False,
-                # kernel_regularizer = regularizers.l2(weight_decay))
         self.conv2b = QConv2D(
                 outputs_depth, 3, quantilize = self.quantization,
                 weight_decay = weight_decay, use_bias = False)
@@ -54,52 +40,28 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         self.bn2b = BatchNormalization()
 
         if self.first:
-            # self.conv_shortcut = Conv2D(
-                    # outputs_depth, 1, strides, 
-                    # padding = 'same', use_bias = False,
-                    # kernel_regularizer = regularizers.l2(weight_decay))
             self.conv_shortcut = QConv2D(
                     outputs_depth, 1, strides, quantilize = self.quantization, 
                     weight_decay = weight_decay, use_bias = False)
             self.bn_shortcut = BatchNormalization()
 
-    # def build(self, input_shape):
-        # if self.first:
-            # self.conv_shortcut.build(input_shape)
-        # self.conv2a.build(input_shape)
-        # input_shape_conv2b = tf.TensorShape(
-                # [None, 
-                    # int(input_shape[1] / self.strides), 
-                    # int(input_shape[2] / self.strides), 
-                    # input_shape[3]])
-        # self.conv2b.build(input_shape_conv2b)
-
     def call(self, input_tensor):
+        x = input_tensor
         if self.first:
-            # if self.quantization:
-                # QuantilizeWeightsWrap(self.conv_shortcut)
-            shortcut = self.conv_shortcut(input_tensor)
+            shortcut = self.conv_shortcut(x)
             shortcut = self.bn_shortcut(shortcut)
         else:
-            shortcut = input_tensor
+            shortcut = x
 
-        # if self.quantization:
-            # QuantilizeWeightsWrap(self.conv2a)
-        x = self.conv2a(input_tensor)
+        x = self.conv2a(x)
         x = self.bn2a(x)
         x = Activation('relu')(x)
-        if self.quantization:
-            x = QuantilizeActivation(x)
 
-        # if self.quantization:
-            # QuantilizeWeightsWrap(self.conv2b)
         x = self.conv2b(x)
         x = self.bn2b(x)
 
         x += shortcut
         x = Activation('relu')(x)
-        if self.quantization:
-            x = QuantilizeActivation(x)
         return x
 
 
@@ -142,11 +104,10 @@ class Resnet20(tf.keras.Model):
 
         super(Resnet20, self).__init__(name = '')
         self.quantization = quantization
-        # self.conv_first = Conv2D(
-                # 16, 3, padding = 'same', use_bias = False,
-                # kernel_regularizer = regularizers.l2(weight_decay))
+
         self.conv_first = QConv2D(
-                16, 3, quantilize = self.quantization, 
+                # 16, 3, quantilize = self.quantization, 
+                16, 3, quantilize = False, 
                 weight_decay = weight_decay, use_bias = False)
         self.bn_first = BatchNormalization()
         self.dense = Dense(
@@ -154,30 +115,19 @@ class Resnet20(tf.keras.Model):
                 kernel_regularizer = regularizers.l2(weight_decay))
         self.block1 = ResnetBlockL2(
                 3, 16, 1, 
-                quantization = quantization, 
-                weight_decay = weight_decay)
+                quantization = quantization, weight_decay = weight_decay)
         self.block2 = ResnetBlockL2(
                 3, 32, 2, 
-                quantization = quantization, 
-                weight_decay = weight_decay)
+                quantization = quantization, weight_decay = weight_decay)
         self.block3 = ResnetBlockL2(
                 3, 64, 2, 
-                quantization = quantization, 
-                weight_decay = weight_decay)
-
-    # def build(self, input_shape):
-        # self.conv_first.build(input_shape)
-        # input_shape_dense = tf.TensorShape([None, 64])
-        # self.dense.build(input_shape_dense)
+                quantization = quantization, weight_decay = weight_decay)
 
     def call(self, input_tensor):
-        # if self.quantization:
-            # QuantilizeWeightsWrap(self.conv_first)
-        x = self.conv_first(input_tensor)
+        x = input_tensor
+        x = self.conv_first(x)
         x = self.bn_first(x)
         x = Activation('relu')(x)
-        if self.quantization:
-            x = QuantilizeActivation(x)
 
         x = self.block1(x)
         x = self.block2(x)
@@ -185,15 +135,13 @@ class Resnet20(tf.keras.Model):
 
         x = MaxPooling2D(pool_size = 8)(x)
         x = Flatten()(x)
-        # if self.quantization:
-            # QuantilizeWeightsWrap(self.dense)
         x = self.dense(x)
 
         return Activation('softmax')(x)
 
 # weight_decay = 0.0005
 # quantization = False
-weight_decay = 0
+weight_decay = 0.0005
 quantization = True
 class_num = 10
 

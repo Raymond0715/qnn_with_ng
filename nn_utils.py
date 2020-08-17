@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import regularizers
-from quantization import QuantilizeFn 
+from quantization import QuantilizeFn, tangent
 
 BITW = 4
 BITA = 4
@@ -23,15 +23,12 @@ class QConv2D(tf.keras.layers.Layer):
         self.kernel_size = kernel_size
         self.strides = strides
         self.padding = padding
-        # self.name = name
         self.quantilize = quantilize
         self.weight_decay = weight_decay
         self.use_bias = use_bias
 
     def build(self, input_shape):
-        # filters_name = self.name + '/weights'
         self.filters = self.add_weight(
-                # filters_name,
                 shape = [ 
                     self.kernel_size,
                     self.kernel_size, 
@@ -40,19 +37,30 @@ class QConv2D(tf.keras.layers.Layer):
                 initializer = tf.keras.initializers.GlorotUniform(),
                 regularizer = regularizers.l2(self.weight_decay))
 
-        if self.quantilize:
-            self.filters = QuantilizeWeight(self.filters)
+        # if self.quantilize == 'ste':
+            # self.filters = QuantilizeWeight(self.filters)
+        # elif self.quantize == 'ng':
+            # filters_quantilize = QuantilizeWeight(self.filters)
+            # self.filters = (self.filters, filters_quantilize, alpha)
+
+        # if self.quantilize:
+            # # self.filters = tf.clip_by_value(self.filters, -1, 1)
+            # self.filters = QuantilizeWeight(self.filters)
 
         if self.use_bias:
-            # bias_name = self.name + '/bias'
             self.bias = self.add_weight(
-                    # bias_name,
                     shape = self.kernel_depth,
                     initializer = tf.keras.initializers.Zeros())
         
     def call(self, input_tensor):
+        if self.quantilize:
+            # self.filters = tf.clip_by_value(self.filters, -1, 1)
+            filters = QuantilizeWeight(self.filters)
+            input_tensor = QuantilizeActivation(input_tensor)
+        else:
+            filters = self.filters
         output = tf.nn.conv2d(
-                input_tensor, self.filters, self.strides, self.padding)
+                input_tensor, filters, self.strides, self.padding)
         if self.use_bias:
             output = tf.nn.bias_add(output, self.bias)
         return output
