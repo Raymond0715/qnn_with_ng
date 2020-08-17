@@ -37,6 +37,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         if self.first:
             self.conv_shortcut = QConv2D(
                     outputs_depth, 1, strides, quantilize = self.quantization, 
+                #     outputs_depth, 1, strides, quantilize = False, 
                     weight_decay = weight_decay, use_bias = False)
             self.bn_shortcut = BatchNormalization()
 
@@ -50,13 +51,15 @@ class ResnetUnitL2(tf.keras.layers.Layer):
 
         x = self.conv2a(x)
         x = self.bn2a(x)
-        x = Activation('relu')(x)
+        # x = Activation('relu')(x)
+        x = tf.clip_by_value(x, -1, 1)
 
         x = self.conv2b(x)
         x = self.bn2b(x)
 
         x += shortcut
-        x = Activation('relu')(x)
+        # x = Activation('relu')(x)
+        x = tf.clip_by_value(x, -1, 1)
         return x
 
 
@@ -122,7 +125,8 @@ class Resnet20(tf.keras.Model):
         x = input_tensor
         x = self.conv_first(x)
         x = self.bn_first(x)
-        x = Activation('relu')(x)
+        # x = Activation('relu')(x)
+        x = tf.clip_by_value(x, -1, 1)
 
         x = self.block1(x)
         x = self.block2(x)

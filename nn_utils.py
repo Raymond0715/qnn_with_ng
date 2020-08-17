@@ -3,8 +3,8 @@ from tensorflow.keras import regularizers
 from quantization import QuantilizeFn, tangent
 import pdb
 
-BITW = 4
-BITA = 4
+BITW = 1
+BITA = 1
 QuantilizeWeight, QuantilizeActivation = QuantilizeFn(BITW, BITA)
 
 class QConv2D(tf.keras.layers.Layer):
@@ -57,6 +57,7 @@ class QConv2D(tf.keras.layers.Layer):
         if self.quantilize:
             filters = tf.clip_by_value(self.filters, -1, 1)
             filters = QuantilizeWeight(filters)
+            # input_tensor = tf.clip_by_value(input_tensor, -1, 1)
             input_tensor = QuantilizeActivation(input_tensor)
         else:
             filters = self.filters

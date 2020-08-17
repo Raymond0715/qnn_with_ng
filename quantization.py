@@ -17,10 +17,9 @@ def QuantilizeFn(Wbit, Abit):
     @tf.custom_gradient
     def QuantilizeWeight(w):
         if Wbit == 1:   # BNN
-            # mean = tf.reduce_mean(tf.abs(x))
-            # E = tf.stop_gradient(mean)
-            # return tf.sign(x) * E
-            output = tf.sign(w)
+            mean = tf.reduce_mean(tf.abs(w))
+            E = tf.stop_gradient(mean)
+            output = tf.sign(w / E) * E
         elif Wbit == 32:
             output = w
         else:   # QNN
@@ -37,10 +36,9 @@ def QuantilizeFn(Wbit, Abit):
     @tf.custom_gradient
     def QuantilizeActivation(x):
         if Abit == 1:   # BNN
-            # mean = tf.reduce_mean(tf.abs(x))
-            # E = tf.stop_gradient(mean)
-            # return tf.sign(x) * E
-            output = tf.sign(x)
+            mean = tf.reduce_mean(tf.abs(x))
+            E = tf.stop_gradient(mean)
+            output = tf.sign(x / E) * E
         elif Abit == 32:
             output = x
         else:   # QNN
