@@ -8,11 +8,6 @@ from quantization import QuantilizeFn
 
 import pdb
 
-BITW = 4
-BITA = 4
-QuantilizeWeight, QuantilizeActivation = QuantilizeFn(BITW, BITA)
-
-
 class ResnetUnitL2(tf.keras.layers.Layer):
     def __init__(
             self, 

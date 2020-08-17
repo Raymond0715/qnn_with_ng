@@ -54,11 +54,12 @@ class QConv2D(tf.keras.layers.Layer):
         
     def call(self, input_tensor):
         if self.quantilize:
-            # self.filters = tf.clip_by_value(self.filters, -1, 1)
-            filters = QuantilizeWeight(self.filters)
+            filters = tf.clip_by_value(self.filters, -1, 1)
+            filters = QuantilizeWeight(filters)
             input_tensor = QuantilizeActivation(input_tensor)
         else:
             filters = self.filters
+
         output = tf.nn.conv2d(
                 input_tensor, filters, self.strides, self.padding)
         if self.use_bias:
