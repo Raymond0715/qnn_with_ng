@@ -4,10 +4,32 @@ import numpy as np
 
 import argparse
 import importlib
+import csv
 import pdb
 
 parser = argparse.ArgumentParser(
         description = 'Specify key arguments for this project.')
+parser.add_argument(
+        '--model', default = 'resnet20', 
+        help = 'Name of loaded model.')
+parser.add_argument(
+        '--class_num', default = 10, type = int,
+        help = 'Number of output class.')
+parser.add_argument(
+        '--dataset', default = 'cifar10', 
+        help = 'Dataset.')
+parser.add_argument(
+        '--quantilize', default = 'False',
+        help = 'If quantilize model.')
+parser.add_argument(
+        '--quantilize_w', default = 32, type = int,
+        help = 'Weights bits width for quantilize model ')
+parser.add_argument(
+        '--quantilize_x', default = 32, type = int,
+        help = 'Activation bits width for quantilize model ')
+parser.add_argument(
+        '--weight_decay', default = 0.0005, type = float,
+        help = 'Weight decay for regularizer l2.')
 parser.add_argument(
         '--batch_size', default = 128, type = int,
         help = 'Numbers of images to process in a batch.')
@@ -18,14 +40,14 @@ parser.add_argument(
         '--learning_rate', default = 0.1, type = float,
         help = 'Initial learning rate used.')
 parser.add_argument(
-        '--model', default = 'resnet20', 
-        help = 'Name of loaded model.')
-parser.add_argument(
         '--ckpt_dir', default = 'resnet20', 
         help = 'Directory of checkpoint.')
 parser.add_argument(
-        '--dataset', default = 'cifar10', 
-        help = 'Dataset.')
+        '--log_dir', default = 'log_dir',
+        help = 'Directory of log file. Always in `log` directory.')
+parser.add_argument(
+        '--log_file', default = 'log_file',
+        help = 'Name of log file.')
 args = parser.parse_args()
 
 # Param
@@ -81,15 +103,13 @@ if __name__ == '__main__':
             lr=learning_rate, decay=lr_decay, momentum=0.9, nesterov=True)
     model = importlib.import_module(
             '.' + args.model, 'models').model 
+
     # model.compile(
             # loss='categorical_crossentropy', optimizer=sgd,
             # metrics=['accuracy'], run_eagerly = True)
     model.compile(
             loss='categorical_crossentropy', optimizer=sgd,
             metrics=['accuracy'])
-
-    input_shape = tf.TensorShape([None, 32, 32, 3])
-    model.build(input_shape)
 
     # training process in a for loop with learning rate drop every 20 epoches.
     historytemp = model.fit(
@@ -99,3 +119,9 @@ if __name__ == '__main__':
             validation_data=(x_test, y_test),
             callbacks=[reduce_lr],
             verbose=2)
+
+    # log_path = './log/' + args.log_dir + '/' + args.log_file + '.txt'
+    # with open(log_path, 'w', newline = '') as csvfile:
+        # csvwriter = csv.DictWriter(csvfile, historytemp.history.keys())
+        # csvwriter.writeheader()
+        # csvwriter.writerow(historytemp.history)
