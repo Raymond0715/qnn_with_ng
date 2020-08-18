@@ -4,7 +4,7 @@ from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras import regularizers
 
 from nn_utils import QConv2D
-from quantization import QuantilizeFn 
+from quantization import QuantilizeFnSTE, QuantilizeFnNG
 from main import args
 
 import pdb
@@ -22,7 +22,8 @@ class ResnetUnitL2(tf.keras.layers.Layer):
             quantilize = False,
             quantilize_w = 32,
             quantilize_x = 32,
-            weight_decay = 0.0005):
+            weight_decay = 0.0005,
+            alpha        = 0):
 
         super(ResnetUnitL2, self).__init__()
         self.strides = strides
@@ -30,13 +31,16 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
+        self.alpha        = alpha
 
         self.conv2a = QConv2D(
                 outputs_depth, 3, strides, 
                 quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = weight_decay, use_bias = False)
+                weight_decay = weight_decay, 
+                use_bias     = False,
+                alpha        = self.alpha)
             
         self.bn2a = BatchNormalization()
         
@@ -45,7 +49,9 @@ class ResnetUnitL2(tf.keras.layers.Layer):
                 quantilize   = self.quantilize,
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = weight_decay, use_bias = False)
+                weight_decay = weight_decay, 
+                use_bias     = False,
+                alpha        = self.alpha)
 
         self.bn2b = BatchNormalization()
 
@@ -55,7 +61,9 @@ class ResnetUnitL2(tf.keras.layers.Layer):
                     quantilize   = self.quantilize, 
                     quantilize_w = self.quantilize_w,
                     quantilize_x = self.quantilize_x,
-                    weight_decay = weight_decay, use_bias = False)
+                    weight_decay = weight_decay, 
+                    use_bias     = False,
+                    alpha        = self.alpha)
             self.bn_shortcut = BatchNormalization()
 
     def call(self, input_tensor):
@@ -93,13 +101,15 @@ class ResnetBlockL2(tf.keras.layers.Layer):
             quantilize = False,
             quantilize_w = 32,
             quantilize_x = 32,
-            weight_decay = 0.0005):
+            weight_decay = 0.0005,
+            alpha        = 0):
 
         super(ResnetBlockL2, self).__init__()
         self.num_units    = num_units
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
+        self.alpha        = alpha
 
         self.units = []
         self.units.append(
@@ -108,7 +118,8 @@ class ResnetBlockL2(tf.keras.layers.Layer):
                     quantilize   = quantilize, 
                     quantilize_w = self.quantilize_w,
                     quantilize_x = self.quantilize_x,
-                    weight_decay = weight_decay))
+                    weight_decay = weight_decay,
+                    alpha        = self.alpha))
         for i in range(1, self.num_units):
             self.units.append(
                     ResnetUnitL2( 
@@ -116,7 +127,8 @@ class ResnetBlockL2(tf.keras.layers.Layer):
                         quantilize   = self.quantilize, 
                         quantilize_w = self.quantilize_w,
                         quantilize_x = self.quantilize_x,
-                        weight_decay = weight_decay))
+                        weight_decay = weight_decay,
+                        alpha        = self.alpha))
 
     def call(self, input_tensor):
         x = input_tensor
@@ -133,18 +145,21 @@ class Resnet20(tf.keras.Model):
             class_num,
             quantilize = False, 
             quantilize_w = 32,
-            quantilize_x = 32):
+            quantilize_x = 32,
+            num_epochs   = 250):
 
         super(Resnet20, self).__init__(name = '')
         self.weight_decay = weight_decay
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
+        self.alpha = 0
+        self.num_epochs = num_epochs
 
         self.conv_first = QConv2D(
                 # 16, 3, quantilize = self.quantilize, 
-                16, 3, quantilize = False, 
-                weight_decay = self.weight_decay, use_bias = False)
+                16, 3, quantilize = False, weight_decay = self.weight_decay, 
+                use_bias = False, alpha = self.alpha)
         self.bn_first = BatchNormalization()
         self.dense = Dense(
                 class_num, 
@@ -154,19 +169,22 @@ class Resnet20(tf.keras.Model):
                 quantilize = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block2 = ResnetBlockL2(
                 3, 32, 2, 
                 quantilize = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block3 = ResnetBlockL2(
                 3, 64, 2, 
                 quantilize = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
 
     def call(self, input_tensor):
         x = input_tensor
@@ -201,7 +219,9 @@ quantilize   = args.quantilize
 quantilize_w = args.quantilize_w
 quantilize_x = args.quantilize_x
 weight_decay = args.weight_decay
+num_epochs   = args.num_epochs
 
 model = Resnet20(
         weight_decay, class_num, quantilize = quantilize,
-        quantilize_w = quantilize_w, quantilize_x = quantilize_x)
+        quantilize_w = quantilize_w, quantilize_x = quantilize_x,
+        num_epochs = num_epochs)

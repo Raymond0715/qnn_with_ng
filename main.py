@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
-import numpy as np
 
+import math
+import numpy as np
 import argparse
 import importlib
 import csv
@@ -19,8 +20,8 @@ parser.add_argument(
         '--dataset', default = 'cifar10', 
         help = 'Dataset.')
 parser.add_argument(
-        '--quantilize', default = 'False',
-        help = 'If quantilize model.')
+        '--quantilize', default = 'None',
+        help = 'Quantilization mode.')
 parser.add_argument(
         '--quantilize_w', default = 32, type = int,
         help = 'Weights bits width for quantilize model ')
@@ -66,17 +67,30 @@ def normalize(X_train,X_test):
 
 
 def lr_scheduler(epoch):
-    if epoch < 7800:
+    if epoch < 20:
         return 0.1
-    elif epoch < 31200:
+    elif epoch < 80:
         return 0.01
-    elif epoch < 54600:
+    elif epoch < 140:
         return 0.001
-    elif epoch < 78000:
+    elif epoch < 200:
         return 0.0001
     else:
         return 0.00001
     # return learning_rate * (0.5 ** (epoch // lr_drop))
+
+
+class NGalpha(tf.keras.callbacks.Callback):
+    def __init__(self):
+        super(NGalpha, self).__init__()
+        
+    def on_epoch_begin(self, epoch, logs = None):
+        # pdb.set_trace()
+        self.model.alpha = \
+                1.0 / (math.e - 1.0) * \
+                (math.e ** (float(epoch) / self.model.num_epochs) - 1)
+        print('[INFO][main.py] alpha:', self.model.alpha)
+        print('[INFO][main.py] learning rate:', self.model.optimizer.lr.numpy())
 
 
 if __name__ == '__main__':
@@ -101,11 +115,13 @@ if __name__ == '__main__':
 
     reduce_lr = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
 
-    datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
-        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
-        horizontal_flip=True,  # randomly flip images
-        vertical_flip=False)  # randomly flip images
+    datagen = tf.keras.preprocessing.image.ImageDataGenerator( 
+            featurewise_center = True,
+            featurewise_std_normalization = True,
+            width_shift_range = 0.1,  # randomly shift images horizontally (fraction of total width) 
+            height_shift_range = 0.1,  # randomly shift images vertically (fraction of total height) 
+            horizontal_flip = True,  # randomly flip images 
+            vertical_flip = False)  # randomly flip images
     datagen.fit(x_train)
 
     #optimization details
@@ -127,7 +143,9 @@ if __name__ == '__main__':
             steps_per_epoch=x_train.shape[0] // batch_size, 
             epochs=num_epochs, 
             validation_data=(x_test, y_test),
-            callbacks=[reduce_lr],
+            callbacks=[
+                reduce_lr,
+                NGalpha()],
             verbose=2)
 
     # log_path = './log/' + args.log_dir + '/' + args.log_file

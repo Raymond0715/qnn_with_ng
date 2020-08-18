@@ -4,7 +4,7 @@ from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras import regularizers
 
 from nn_utils import QConv2D
-from quantization import QuantilizeFn 
+from quantization import QuantilizeFnSTE, QuantilizeFnNG 
 from main import args
 
 import pdb
@@ -16,18 +16,21 @@ class VGGUnit(tf.keras.layers.Layer):
             quantilize   = False,
             quantilize_w = 32,
             quantilize_x = 32,
-            weight_decay = 0.0005):
+            weight_decay = 0.0005,
+            alpha        = 0 ):
 
         super(VGGUnit, self).__init__()
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
+        self.alpha        = alpha
         
         self.conv = QConv2D(
                 outputs_depth, 3, 
                 quantilize = self.quantilize,
                 quantilize_w = self.quantilize_w, 
-                quantilize_x = self.quantilize_x)
+                quantilize_x = self.quantilize_x,
+                alpha        = self.alpha)
         self.bn = BatchNormalization()
 
     def call(self, input_tensor):
@@ -49,7 +52,8 @@ class VGGBlock(tf.keras.layers.Layer):
             quantilize_w = 32,
             quantilize_x = 32,
             first        = False,
-            weight_decay = 0.0005):
+            weight_decay = 0.0005
+            alpha        = 0):
 
         super(VGGBlock, self).__init__()
         self.num_units    = num_units
@@ -57,6 +61,7 @@ class VGGBlock(tf.keras.layers.Layer):
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
         self.first        = first
+        self.alpha        = alpha
 
         self.units = []
         if self.first:
@@ -64,7 +69,8 @@ class VGGBlock(tf.keras.layers.Layer):
                     VGGUnit( 
                         outputs_depth, 
                         quantilize   = False, 
-                        weight_decay = weight_decay))
+                        weight_decay = weight_decay,
+                        alpha        = self.alpha))
         else:
             self.units.append(
                     VGGUnit( 
@@ -72,7 +78,8 @@ class VGGBlock(tf.keras.layers.Layer):
                         quantilize   = self.quantilize, 
                         quantilize_w = self.quantilize_w,
                         quantilize_x = self.quantilize_x,
-                        weight_decay = weight_decay))
+                        weight_decay = weight_decay,
+                        alpha        = self.alpha))
 
         for i in range(1, self.num_units):
             self.units.append(
@@ -81,7 +88,8 @@ class VGGBlock(tf.keras.layers.Layer):
                         quantilize   = self.quantilize, 
                         quantilize_w = self.quantilize_w,
                         quantilize_x = self.quantilize_x,
-                        weight_decay = weight_decay))
+                        weight_decay = weight_decay,
+                        alpha        = self.alpha))
 
     def call(self, input_tensor):
         x = input_tensor
@@ -97,13 +105,16 @@ class VGG16(tf.keras.Model):
             class_num,
             quantilize = False, 
             quantilize_w = 32,
-            quantilize_x = 32):
+            quantilize_x = 32,
+            num_epochs   = 250):
 
         super(VGG16, self).__init__(name = '')
         self.weight_decay = weight_decay
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
+        self.alpha = 0
+        self.num_epochs = num_epochs
 
         self.dense1 = Dense(
                 512,
@@ -115,35 +126,40 @@ class VGG16(tf.keras.Model):
         self.bn2 = BatchNormalization()
         self.block1 = VGGBlock(
                 2, 64,
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
                 first        = True,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block2 = VGGBlock(
                 2, 128,
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block3 = VGGBlock(
                 3, 256,
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block4 = VGGBlock(
                 3, 512,
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
         self.block5 = VGGBlock(
                 3, 512,
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
-                weight_decay = self.weight_decay)
+                weight_decay = self.weight_decay,
+                alpha        = self.alpha)
 
     def call(self, input_tensor):
         x = input_tensor
@@ -176,7 +192,9 @@ quantilize   = args.quantilize
 quantilize_w = args.quantilize_w
 quantilize_x = args.quantilize_x
 weight_decay = args.weight_decay
+num_epochs   = args.num_epochs
 
 model = VGG16(
         weight_decay, class_num, quantilize = quantilize,
-        quantilize_w = quantilize_w, quantilize_x = quantilize_x)
+        quantilize_w = quantilize_w, quantilize_x = quantilize_x, 
+        num_epochs = num_epochs)
