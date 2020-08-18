@@ -67,15 +67,15 @@ def normalize(X_train,X_test):
 
 def lr_scheduler(epoch):
     if epoch < 7800:
-        return 0.1
+        return learning_rate * 0.1
     elif epoch < 31200:
-        return 0.01
+        return learning_rate * 0.01
     elif epoch < 54600:
-        return 0.001
+        return learning_rate * 0.001
     elif epoch < 78000:
-        return 0.0001
+        return learning_rate * 0.0001
     else:
-        return 0.00001
+        return learning_rate * 0.00001
     # return learning_rate * (0.5 ** (epoch // lr_drop))
 
 
