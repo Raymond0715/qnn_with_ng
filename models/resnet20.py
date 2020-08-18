@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Activation, Flatten
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization
+from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras import regularizers
 
 from nn_utils import QConv2D
@@ -96,7 +96,7 @@ class ResnetBlockL2(tf.keras.layers.Layer):
             weight_decay = 0.0005):
 
         super(ResnetBlockL2, self).__init__()
-        self.num_units = num_units
+        self.num_units    = num_units
         self.quantilize   = quantilize
         self.quantilize_w = quantilize_w
         self.quantilize_x = quantilize_x
