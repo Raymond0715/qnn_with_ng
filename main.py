@@ -46,7 +46,7 @@ parser.add_argument(
         '--log_dir', default = 'log_dir',
         help = 'Directory of log file. Always in `log` directory.')
 parser.add_argument(
-        '--log_file', default = 'log_file',
+        '--log_file', default = 'log_file.txt',
         help = 'Name of log file.')
 args = parser.parse_args()
 
@@ -66,7 +66,17 @@ def normalize(X_train,X_test):
 
 
 def lr_scheduler(epoch):
-    return learning_rate * (0.5 ** (epoch // lr_drop))
+    if epoch < 7800:
+        return 0.1
+    elif epoch < 31200:
+        return 0.01
+    elif epoch < 54600:
+        return 0.001
+    elif epoch < 78000:
+        return 0.0001
+    else:
+        return 0.00001
+    # return learning_rate * (0.5 ** (epoch // lr_drop))
 
 
 if __name__ == '__main__':
@@ -120,7 +130,7 @@ if __name__ == '__main__':
             callbacks=[reduce_lr],
             verbose=2)
 
-    # log_path = './log/' + args.log_dir + '/' + args.log_file + '.txt'
+    # log_path = './log/' + args.log_dir + '/' + args.log_file
     # with open(log_path, 'w', newline = '') as csvfile:
         # csvwriter = csv.DictWriter(csvfile, historytemp.history.keys())
         # csvwriter.writeheader()
