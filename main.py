@@ -86,11 +86,21 @@ class NGalpha(tf.keras.callbacks.Callback):
         
     def on_epoch_begin(self, epoch, logs = None):
         # pdb.set_trace()
+        # print('[DEBUG][main.py] learning rate:', self.model.optimizer.lr.numpy())
+        # print('[DEBUG][main.py] alpha, before epoch begin:', self.model.alpha)
         self.model.alpha = \
                 1.0 / (math.e - 1.0) * \
                 (math.e ** (float(epoch) / self.model.num_epochs) - 1)
-        print('[INFO][main.py] alpha:', self.model.alpha)
-        print('[INFO][main.py] learning rate:', self.model.optimizer.lr.numpy())
+        # print('[DEBUG][main.py] alpha, after epoch begin:', self.model.alpha)
+
+    def on_test_begin(self, logs = None):
+        # print('[DEBUG][main.py] alpha, before test batch:', self.model.alpha)
+        self.model.alpha = 1
+        # print('[DEBUG][main.py] alpha, after test batch:', self.model.alpha)
+
+    # def on_test_batch_begin(self, batch, logs = None):
+        # print('[DEBUG][main.py] alpha, test batch:', self.model.alpha)
+
 
 
 if __name__ == '__main__':
