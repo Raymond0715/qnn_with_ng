@@ -17,6 +17,6 @@ python main.py \
 	--log_file <log/file, e.g. log_file.txt>
 
 # e.g.
-python main.py --model resnet20 --class_num 10 --dataset cifar10 --quantilize ste --quantilize_w 1 --quantilize_x 1 --weight_decay 0
+python main.py --model resnet20 --class_num 10 --dataset cifar10 --quantilize ste --quantilize_w 1 --quantilize_x 1 --weight_decay 0 --log_dir resnet20_cifar10 --log_file ng.csv
 ```
 

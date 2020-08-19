@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
 
+from pathlib import Path
 import math
 import numpy as np
 import argparse
@@ -47,7 +48,7 @@ parser.add_argument(
         '--log_dir', default = 'log_dir',
         help = 'Directory of log file. Always in `log` directory.')
 parser.add_argument(
-        '--log_file', default = 'log_file.txt',
+        '--log_file', default = 'log_file.csv',
         help = 'Name of log file.')
 args = parser.parse_args()
 
@@ -85,22 +86,24 @@ class NGalpha(tf.keras.callbacks.Callback):
         super(NGalpha, self).__init__()
         
     def on_epoch_begin(self, epoch, logs = None):
-        # pdb.set_trace()
-        # print('[DEBUG][main.py] learning rate:', self.model.optimizer.lr.numpy())
-        # print('[DEBUG][main.py] alpha, before epoch begin:', self.model.alpha)
         self.model.alpha = \
                 1.0 / (math.e - 1.0) * \
                 (math.e ** (float(epoch) / self.model.num_epochs) - 1)
-        # print('[DEBUG][main.py] alpha, after epoch begin:', self.model.alpha)
 
     def on_test_begin(self, logs = None):
-        # print('[DEBUG][main.py] alpha, before test batch:', self.model.alpha)
         self.model.alpha = 1
-        # print('[DEBUG][main.py] alpha, after test batch:', self.model.alpha)
 
-    # def on_test_batch_begin(self, batch, logs = None):
-        # print('[DEBUG][main.py] alpha, test batch:', self.model.alpha)
+    def on_epoch_end(self, epoch, logs = None):
+        current_dir = Path.cwd()
+        log_dir = current_dir / 'log' / args.log_dir
+        log_dir.mkdir(parents = True, exist_ok = True)
+        log_path = log_dir / args.log_file
+        with open(log_path, 'a') as csvfile:
+            csvwriter = csv.DictWriter(csvfile, logs.keys())
+            if epoch == 0:
+                csvwriter.writeheader()
 
+            csvwriter.writerow(logs)
 
 
 if __name__ == '__main__':
@@ -157,9 +160,3 @@ if __name__ == '__main__':
                 reduce_lr,
                 NGalpha()],
             verbose=2)
-
-    # log_path = './log/' + args.log_dir + '/' + args.log_file
-    # with open(log_path, 'w', newline = '') as csvfile:
-        # csvwriter = csv.DictWriter(csvfile, historytemp.history.keys())
-        # csvwriter.writeheader()
-        # csvwriter.writerow(historytemp.history)
