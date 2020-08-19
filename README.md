@@ -5,7 +5,7 @@ python main.py \
 	--model <model/name> \
 	--class_num <class/number> \
 	--dataset <dataset> \
-	--quantilize <Bool. Choose if quantilize> \ # Will be string in near future
+	--quantilize <Choose quantization method> \ # Will be string in near future
 	--quantilize_w <weights/bits/width, e.g. 32> \
 	--quantilize_x <activation/bits/width, e.g. 32> \
 	--weight_decay <weight/decay, e.g. 0.0005> \
@@ -17,6 +17,6 @@ python main.py \
 	--log_file <log/file, e.g. log_file.txt>
 
 # e.g.
-python main.py --model resnet20 --class_num 10 --dataset cifar10 --quantilize True --quantilize_w 1 --quantilize_x 1 --weight_decay 0
+python main.py --model resnet20 --class_num 10 --dataset cifar10 --quantilize ste --quantilize_w 1 --quantilize_x 1 --weight_decay 0
 ```
 

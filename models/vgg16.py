@@ -52,7 +52,7 @@ class VGGBlock(tf.keras.layers.Layer):
             quantilize_w = 32,
             quantilize_x = 32,
             first        = False,
-            weight_decay = 0.0005
+            weight_decay = 0.0005,
             alpha        = 0):
 
         super(VGGBlock, self).__init__()
