@@ -13,7 +13,7 @@ class VGGUnit(tf.keras.layers.Layer):
     def __init__(
             self,
             outputs_depth,
-            quantilize   = False,
+            quantilize   = None,
             quantilize_w = 32,
             quantilize_x = 32,
             weight_decay = 0.0005,
@@ -48,7 +48,7 @@ class VGGBlock(tf.keras.layers.Layer):
             self,
             num_units,
             outputs_depth,
-            quantilize = False,
+            quantilize   = None,
             quantilize_w = 32,
             quantilize_x = 32,
             first        = False,
@@ -68,7 +68,7 @@ class VGGBlock(tf.keras.layers.Layer):
             self.units.append(
                     VGGUnit( 
                         outputs_depth, 
-                        quantilize   = False, 
+                        quantilize   = None, 
                         weight_decay = weight_decay,
                         alpha        = self.alpha))
         else:
@@ -103,7 +103,7 @@ class VGG16(tf.keras.Model):
             self,
             weight_decay,
             class_num,
-            quantilize = False, 
+            quantilize   = None, 
             quantilize_w = 32,
             quantilize_x = 32,
             num_epochs   = 250):
