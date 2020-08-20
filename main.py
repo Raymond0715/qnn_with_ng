@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.datasets import cifar100
 
 from pathlib import Path
 import math
@@ -110,14 +111,19 @@ if __name__ == '__main__':
     if args.dataset == 'cifar10':
         # The data, shuffled and split between train and test sets:
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-        x_train = x_train.astype('float32')
-        x_test  = x_test.astype('float32')
+    elif args.dataset == 'cifar100':
+        # The data, shuffled and split between train and test sets:
+        (x_train, y_train), (x_test, y_test) = cifar100.load_data()
 
-        # Normalization 
-        x_train, x_test = normalize(x_train, x_test)
+    x_train = x_train.astype('float32')
+    x_test  = x_test.astype('float32')
 
-        y_train = tf.keras.utils.to_categorical(y_train, 10)
-        y_test  = tf.keras.utils.to_categorical(y_test, 10)
+    # Normalization
+    x_train, x_test = normalize(x_train, x_test)
+
+    y_train = tf.keras.utils.to_categorical(y_train, args.class_num)
+    y_test  = tf.keras.utils.to_categorical(y_test, args.class_num)
+
 
     # model = cifar10vgg(False)
     # y_pred = model.predict(x_test)
@@ -129,8 +135,8 @@ if __name__ == '__main__':
     reduce_lr = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
 
     datagen = tf.keras.preprocessing.image.ImageDataGenerator( 
-            featurewise_center = True,
-            featurewise_std_normalization = True,
+            # featurewise_center = True,
+            # featurewise_std_normalization = True,
             width_shift_range = 0.1,  # randomly shift images horizontally (fraction of total width) 
             height_shift_range = 0.1,  # randomly shift images vertically (fraction of total height) 
             horizontal_flip = True,  # randomly flip images 
