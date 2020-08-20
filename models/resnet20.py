@@ -76,7 +76,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
 
         x = self.conv2a(x)
         x = self.bn2a(x)
-        if self.quantilize_x == 1:
+        if self.quantilize != None and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
@@ -85,7 +85,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         x = self.bn2b(x)
 
         x += shortcut
-        if self.quantilize_x == 1:
+        if self.quantilize != None and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
@@ -189,7 +189,7 @@ class Resnet20(tf.keras.Model):
         x = input_tensor
         x = self.conv_first(x)
         x = self.bn_first(x)
-        if self.quantilize_x == 1:
+        if self.quantilize != None and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)

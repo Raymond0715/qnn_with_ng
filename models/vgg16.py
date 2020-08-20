@@ -36,7 +36,7 @@ class VGGUnit(tf.keras.layers.Layer):
     def call(self, input_tensor):
         x = self.conv(input_tensor)
         x = self.bn(x)
-        if self.quantilize_x == 1:
+        if self.quantilize != None and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
@@ -178,7 +178,7 @@ class VGG16(tf.keras.Model):
         x = Flatten()(x)
         x = self.dense1(x)
         x = self.bn1(x)
-        if self.quantilize_x == 1:
+        if self.quantilize != None and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
