@@ -13,7 +13,7 @@ class VGGUnit(tf.keras.layers.Layer):
     def __init__(
             self,
             outputs_depth,
-            quantilize   = None,
+            quantilize   = 'full',
             quantilize_w = 32,
             quantilize_x = 32,
             weight_decay = 0.0005,
@@ -27,7 +27,7 @@ class VGGUnit(tf.keras.layers.Layer):
         
         self.conv = QConv2D(
                 outputs_depth, 3, 
-                quantilize = self.quantilize,
+                quantilize   = self.quantilize,
                 quantilize_w = self.quantilize_w, 
                 quantilize_x = self.quantilize_x,
                 alpha        = self.alpha)
@@ -36,9 +36,11 @@ class VGGUnit(tf.keras.layers.Layer):
     def call(self, input_tensor):
         x = self.conv(input_tensor)
         x = self.bn(x)
-        if self.quantilize != None and self.quantilize_x == 1:
+        if self.quantilize != 'full' and self.quantilize_x == 1:
+            # print('[DEBUG][models/vgg16.py] VGG init quantilize')
             x = tf.clip_by_value(x, -1, 1)
         else:
+            # print('[DEBUG][models/vgg16.py] VGG init full')
             x = Activation('relu')(x)
 
         return x
@@ -48,7 +50,7 @@ class VGGBlock(tf.keras.layers.Layer):
             self,
             num_units,
             outputs_depth,
-            quantilize   = None,
+            quantilize   = 'full',
             quantilize_w = 32,
             quantilize_x = 32,
             first        = False,
@@ -65,10 +67,11 @@ class VGGBlock(tf.keras.layers.Layer):
 
         self.units = []
         if self.first:
+            # print('[DEBUG][models/vgg16.py] Block first')
             self.units.append(
                     VGGUnit( 
                         outputs_depth, 
-                        quantilize   = None, 
+                        quantilize   = 'full', 
                         weight_decay = weight_decay,
                         alpha        = self.alpha))
         else:
@@ -103,7 +106,7 @@ class VGG16(tf.keras.Model):
             self,
             weight_decay,
             class_num,
-            quantilize   = None, 
+            quantilize   = 'full', 
             quantilize_w = 32,
             quantilize_x = 32,
             num_epochs   = 250):
@@ -123,7 +126,6 @@ class VGG16(tf.keras.Model):
         self.dense2 = Dense(
                 class_num,
                 kernel_regularizer = regularizers.l2(self.weight_decay))
-        self.bn2 = BatchNormalization()
         self.block1 = VGGBlock(
                 2, 64,
                 quantilize   = self.quantilize, 
@@ -178,9 +180,11 @@ class VGG16(tf.keras.Model):
         x = Flatten()(x)
         x = self.dense1(x)
         x = self.bn1(x)
-        if self.quantilize != None and self.quantilize_x == 1:
+        if self.quantilize != 'full' and self.quantilize_x == 1:
+            # print('[DEBUG][models/vgg16.py] VGG call quantilize')
             x = tf.clip_by_value(x, -1, 1)
         else:
+            # print('[DEBUG][models/vgg16.py] VGG call full')
             x = Activation('relu')(x)
 
         x = self.dense2(x)

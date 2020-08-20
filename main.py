@@ -22,7 +22,7 @@ parser.add_argument(
         '--dataset', default = 'cifar10', 
         help = 'Dataset.')
 parser.add_argument(
-        '--quantilize', default = 'None',
+        '--quantilize', default = 'full',
         help = 'Quantilization mode.')
 parser.add_argument(
         '--quantilize_w', default = 32, type = int,
@@ -78,7 +78,7 @@ def lr_scheduler(epoch):
     elif epoch < 200:
         return 0.0001
     else:
-        return learning_rate * 0.00001
+        return 0.00001
     # return learning_rate * (0.5 ** (epoch // lr_drop))
 
 

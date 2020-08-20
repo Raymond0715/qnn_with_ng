@@ -11,7 +11,7 @@ class QConv2D(tf.keras.layers.Layer):
             kernel_size,
             strides = [1, 1],
             padding = 'SAME', 
-            quantilize = None,
+            quantilize = 'full',
             quantilize_w = 32,
             quantilize_x = 32,
             weight_decay = 0.0005,
@@ -28,13 +28,16 @@ class QConv2D(tf.keras.layers.Layer):
         self.weight_decay = weight_decay
         self.use_bias = use_bias
         if self.quantilize == 'ste':
+            # print('[DEBUG][nn_utils.py] init QConv2D ste')
             self.QuantilizeWeight, self.QuantilizeActivation = \
                     QuantilizeFnSTE(quantilize_w, quantilize_x)
         elif self.quantilize == 'ng':
+            # print('[DEBUG][nn_utils.py] init QConv2D ng')
             self.QuantilizeWeight, self.QuantilizeActivation = \
                     QuantilizeFnNG(quantilize_w, quantilize_x)
             self.alpha = alpha # For nature gradient quantilization
         else:
+            # print('[DEBUG][nn_utils.py] init QConv2D full')
             pass
 
     def build(self, input_shape):
@@ -54,16 +57,19 @@ class QConv2D(tf.keras.layers.Layer):
         
     def call(self, input_tensor):
         if self.quantilize == 'ste':
+            # print('[DEBUG][nn_utils.py] QConv2D call ste')
             filters = tf.clip_by_value(self.filters, -1, 1)
             filters = self.QuantilizeWeight(filters)
             input_tensor = self.QuantilizeActivation(input_tensor)
         elif self.quantilize == 'ng':
+            # print('[DEBUG][nn_utils.py] QConv2D call ng')
             quantize_filters = self.QuantilizeWeight(self.filters)
             filters = tangent(self.filters, quantize_filters, self.alpha)
             input_tensor_quantilize = self.QuantilizeActivation(input_tensor)
             input_tensor = tangent(
                     input_tensor, input_tensor_quantilize, self.alpha)
         else:
+            # print('[DEBUG][nn_utils.py] QConv2D call full')
             filters = self.filters
 
         output = tf.nn.conv2d(

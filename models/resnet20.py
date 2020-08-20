@@ -19,7 +19,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
             outputs_depth, 
             strides = 1, 
             first = False, 
-            quantilize   = None,
+            quantilize   = 'full',
             quantilize_w = 32,
             quantilize_x = 32,
             weight_decay = 0.0005,
@@ -76,7 +76,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
 
         x = self.conv2a(x)
         x = self.bn2a(x)
-        if self.quantilize != None and self.quantilize_x == 1:
+        if self.quantilize != 'full' and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
@@ -85,7 +85,7 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         x = self.bn2b(x)
 
         x += shortcut
-        if self.quantilize != None and self.quantilize_x == 1:
+        if self.quantilize != 'full' and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)
@@ -98,7 +98,7 @@ class ResnetBlockL2(tf.keras.layers.Layer):
             num_units,
             outputs_depth,
             strides,
-            quantilize   = None,
+            quantilize   = 'full',
             quantilize_w = 32,
             quantilize_x = 32,
             weight_decay = 0.0005,
@@ -143,7 +143,7 @@ class Resnet20(tf.keras.Model):
             self,
             weight_decay,
             class_num,
-            quantilize = None, 
+            quantilize   = 'full', 
             quantilize_w = 32,
             quantilize_x = 32,
             num_epochs   = 250):
@@ -157,7 +157,7 @@ class Resnet20(tf.keras.Model):
         self.num_epochs = num_epochs
 
         self.conv_first = QConv2D(
-                16, 3, quantilize = None, weight_decay = self.weight_decay, 
+                16, 3, quantilize = 'full', weight_decay = self.weight_decay, 
                 use_bias = False, alpha = self.alpha)
         self.bn_first = BatchNormalization()
         self.dense = Dense(
@@ -165,21 +165,21 @@ class Resnet20(tf.keras.Model):
                 kernel_regularizer = regularizers.l2(self.weight_decay))
         self.block1 = ResnetBlockL2(
                 3, 16, 1, 
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
                 weight_decay = self.weight_decay,
                 alpha        = self.alpha)
         self.block2 = ResnetBlockL2(
                 3, 32, 2, 
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
                 weight_decay = self.weight_decay,
                 alpha        = self.alpha)
         self.block3 = ResnetBlockL2(
                 3, 64, 2, 
-                quantilize = self.quantilize, 
+                quantilize   = self.quantilize, 
                 quantilize_w = self.quantilize_w,
                 quantilize_x = self.quantilize_x,
                 weight_decay = self.weight_decay,
@@ -189,7 +189,7 @@ class Resnet20(tf.keras.Model):
         x = input_tensor
         x = self.conv_first(x)
         x = self.bn_first(x)
-        if self.quantilize != None and self.quantilize_x == 1:
+        if self.quantilize != 'full' and self.quantilize_x == 1:
             x = tf.clip_by_value(x, -1, 1)
         else:
             x = Activation('relu')(x)

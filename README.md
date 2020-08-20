@@ -19,6 +19,6 @@ python main.py \
 # e.g.
 python main.py --model resnet20 --class_num 10 --dataset cifar10 --quantilize ste --quantilize_w 1 --quantilize_x 1 --weight_decay 0 --log_dir resnet20_cifar10 --log_file ng.csv
 
-python main.py --model vgg16 --class_num 100 --dataset cifar100 --quantilize None --quantilize_w 1 --quantilize_x 1 --weight_decay 0.0005 --log_dir vgg16_cifar100 --log_file full.csv
+python main.py --model vgg16 --class_num 100 --dataset cifar100 --quantilize full --quantilize_w 1 --quantilize_x 1 --weight_decay 0.0005 --log_dir vgg16_cifar100 --log_file full.csv
 ```
 
