@@ -1,6 +1,6 @@
 # Quantized Neural Networks on Classification tasks using `TensorFlow 2.3`
 
-This is an example for quantized neural networks using "natural gradient (ng)" introduced in "optimizing quantized neural network with natural gradient" and  "straight-through estimator (ste)".
+This is an example for quantized neural networks using "natural gradient (ng)" introduced in "optimizing quantized neural network with natural gradient" and  "straight-through estimator (ste)". Accuracy and loss will be recorded in log file in `./log` directory. You can plot curve of `val_accuracy` and `val_loss` with `tools/curve.py`.
 
 
 
