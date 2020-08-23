@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(
         description = 'Specify key arguments for this project.')
 parser.add_argument(
         '--model', default = 'resnet20', 
-        help = 'Name of loaded model.')
+        help = 'Name of loaded model. Must be one of resnet20 and vgg16')
 parser.add_argument(
         '--class_num', default = 10, type = int,
         help = 'Number of output class.')
@@ -22,7 +22,8 @@ parser.add_argument(
         help = 'Dataset.')
 parser.add_argument(
         '--quantilize', default = 'full',
-        help = 'Quantilization mode.')
+        help = 'Quantilization mode. Must be one of full, ste and ng. When full'
+        'is set, quantilze_w and quantilize_x will be useless.')
 parser.add_argument(
         '--quantilize_w', default = 32, type = int,
         help = 'Weights bits width for quantilize model ')
@@ -41,9 +42,6 @@ parser.add_argument(
 parser.add_argument(
         '--learning_rate', default = 0.1, type = float,
         help = 'Initial learning rate used.')
-parser.add_argument(
-        '--ckpt_dir', default = 'resnet20', 
-        help = 'Directory of checkpoint.')
 parser.add_argument(
         '--log_dir', default = 'log_dir',
         help = 'Directory of log file. Always in `log` directory.')
