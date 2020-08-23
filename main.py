@@ -23,7 +23,7 @@ parser.add_argument(
 parser.add_argument(
         '--quantilize', default = 'full',
         help = 'Quantilization mode. Must be one of full, ste and ng. When full'
-        'is set, quantilze_w and quantilize_x will be useless.')
+        ' is set, quantilze_w and quantilize_x will be useless.')
 parser.add_argument(
         '--quantilize_w', default = 32, type = int,
         help = 'Weights bits width for quantilize model ')
@@ -66,16 +66,14 @@ def normalize(X_train,X_test):
 
 
 def lr_scheduler(epoch):
-    if epoch < 20:
+    if epoch < 80:
         return 0.1
-    elif epoch < 80:
-        return 0.01
     elif epoch < 140:
-        return 0.001
+        return 0.01
     elif epoch < 200:
-        return 0.0001
+        return 0.001
     else:
-        return 0.00001
+        return 0.0001
     # return learning_rate * (0.5 ** (epoch // lr_drop))
 
 
