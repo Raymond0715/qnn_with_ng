@@ -1,9 +1,5 @@
 # Quantized Neural Networks on Classification tasks using `TensorFlow 2.3`
 
-This is an example for quantized neural networks using "natural gradient (ng)" which will be introduced in an unpublished paper and  "straight-through estimator (ste)". Accuracy and loss will be recorded in log file in `./log` directory. You can plot curve of `val_accuracy` and `val_loss` with `tools/curve.py`.
-
-
-
 - Supported datasets: Cifar 10/100
 
 - Supported Model: resnet 20 and vgg 16
