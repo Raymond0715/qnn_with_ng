@@ -58,7 +58,8 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         if self.first:
             self.conv_shortcut = QConv2D(
                     outputs_depth, 1, strides, 
-                    quantilize   = self.quantilize, 
+                    # quantilize   = self.quantilize, 
+                    quantilize   = 'full', 
                     quantilize_w = self.quantilize_w,
                     quantilize_x = self.quantilize_x,
                     weight_decay = weight_decay, 
@@ -77,8 +78,10 @@ class ResnetUnitL2(tf.keras.layers.Layer):
         x = self.conv2a(x)
         x = self.bn2a(x)
         if self.quantilize != 'full' and self.quantilize_x == 1:
+            # print('[DEBUG][models/resnet20.py] resnet unit 1 call quantilize')
             x = tf.clip_by_value(x, -1, 1)
         else:
+            # print('[DEBUG][models/resnet20.py] resnet unit 1 call full')
             x = Activation('relu')(x)
 
         x = self.conv2b(x)
@@ -86,8 +89,10 @@ class ResnetUnitL2(tf.keras.layers.Layer):
 
         x += shortcut
         if self.quantilize != 'full' and self.quantilize_x == 1:
+            # print('[DEBUG][models/resnet20.py] resnet unit 2 call quantilize')
             x = tf.clip_by_value(x, -1, 1)
         else:
+            # print('[DEBUG][models/resnet20.py] resnet unit 2 call full')
             x = Activation('relu')(x)
         return x
 
@@ -190,8 +195,10 @@ class Resnet20(tf.keras.Model):
         x = self.conv_first(x)
         x = self.bn_first(x)
         if self.quantilize != 'full' and self.quantilize_x == 1:
+            # print('[DEBUG][models/resnet20.py] resnet call quantilize')
             x = tf.clip_by_value(x, -1, 1)
         else:
+            # print('[DEBUG[models/resnet20.py] resnet call full')
             x = Activation('relu')(x)
 
         x = self.block1(x)
