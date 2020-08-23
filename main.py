@@ -8,7 +8,6 @@ import numpy as np
 import argparse
 import importlib
 import csv
-import pdb
 
 parser = argparse.ArgumentParser(
         description = 'Specify key arguments for this project.')
@@ -130,7 +129,6 @@ if __name__ == '__main__':
     # m = tf.keras.metrics.Accuracy()
     # m.update_state(np.argmax(y_pred,1), np.argmax(y_test,1))
     # pred_accuracy = m.result().numpy()
-    # pdb.set_trace()
 
     reduce_lr = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
 

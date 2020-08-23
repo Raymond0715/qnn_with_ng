@@ -1,6 +1,4 @@
 import tensorflow as tf
-import pdb
-
 
 def QuantilizeFnSTE(Wbit, Abit):
     def RoundPower2(x, k=4):

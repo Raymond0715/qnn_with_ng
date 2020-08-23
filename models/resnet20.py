@@ -7,8 +7,6 @@ from nn_utils import QConv2D
 from quantization import QuantilizeFnSTE, QuantilizeFnNG
 from main import args
 
-import pdb
-
 '''
 For 1 bit model, activation function use 'tf.clip_by_value', others use 'ReLU'
 '''

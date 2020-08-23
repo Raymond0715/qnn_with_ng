@@ -7,8 +7,6 @@ from nn_utils import QConv2D
 from quantization import QuantilizeFnSTE, QuantilizeFnNG 
 from main import args
 
-import pdb
-
 class VGGUnit(tf.keras.layers.Layer):
     def __init__(
             self,

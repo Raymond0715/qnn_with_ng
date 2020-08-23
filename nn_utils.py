@@ -1,8 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import regularizers
 from quantization import QuantilizeFnSTE, QuantilizeFnNG, tangent
-import pdb
-
 
 class QConv2D(tf.keras.layers.Layer):
     def __init__(
