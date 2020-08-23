@@ -45,7 +45,7 @@ python main.py \
 	--quantilize_x 1 \
 	--weight_decay 0.0005 \
 	--log_dir resnet20_cifar10 \
-	--log_file ng.csv
+	--log_file ste.csv
 ```
 
 Besides, you can run `python main.py -h` for help. 
