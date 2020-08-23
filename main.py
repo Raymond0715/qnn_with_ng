@@ -19,7 +19,7 @@ parser.add_argument(
         help = 'Number of output class.')
 parser.add_argument(
         '--dataset', default = 'cifar10', 
-        help = 'Dataset.')
+        help = 'Dataset. Must be one of cifar10 and cifar100.')
 parser.add_argument(
         '--quantilize', default = 'full',
         help = 'Quantilization mode. Must be one of full, ste and ng. When full'
