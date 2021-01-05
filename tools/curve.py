@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # ATTENTION!!! Need to be changed for different log file                      #
 ###############################################################################
-ng_path = '../log/vgg16_cifar10/ng_1.csv'
-ste_path = '../log/vgg16_cifar10/ste_1.csv'
+ng_path = '../log/resnet20_cifar10//ng.csv'
+ste_path = '../log/resnet20_cifar10//ste_new_lr.csv'
 
 ng_csv = pd.read_csv(ng_path)
 # ng val accuracy
@@ -53,7 +53,7 @@ ax.grid()
 # y limits for accuracy
 ax.set_ylim(10, 100)
 # y limits for loss
-ax2.set_ylim(0.0, 1.5)
+ax2.set_ylim(0.0, 3.5)
 
 ax.set_xlabel("epoch")
 ax.set_ylabel("test error (%)")

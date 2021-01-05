@@ -20,6 +20,7 @@ Clone and run following command. Specify `quantilize` for full and quantized NN.
 ```sh
 python main.py \
 	--model <model/name> \ # Must be one of resnet20 and vgg16
+	--pretrain_path <pretrain/path, default = None> \
 	--class_num <class/number> \
 	--dataset <dataset> \ # Must be one of cifar10 and cifar100
 	--quantilize <Choose quantization method> \ # Must be one of full, ste and ng
@@ -30,7 +31,9 @@ python main.py \
 	--num_epochs <epoch/number, e.g. 250> \
 	--learning_rate <learning/rate, e.g. 0.1> \
 	--log_dir <log/dir, e.g. log_dir> \
-	--log_file <log/file, e.g. log_file.txt>
+	--log_file <log/file, e.g. log_file.txt> \
+	--ckpt_dir <ckpt/dir, e.g. ckpt> \
+	--ckpt_file <ckpt/file, e.g. model>
 ```
 
 example: 
@@ -38,6 +41,7 @@ example:
 ```sh
 python main.py \
 	--model resnet20 \
+	--pretrain_path resnet20_cifar10/full.h5 \
 	--class_num 10 \
 	--dataset cifar10 \
 	--quantilize ste \
@@ -45,7 +49,9 @@ python main.py \
 	--quantilize_x 1 \
 	--weight_decay 0.0005 \
 	--log_dir resnet20_cifar10 \
-	--log_file ng.csv
+	--log_file ste.csv \
+	--ckpt_dir resnet20_cifar10 \
+	--ckpt_file full.h5
 ```
 
 Besides, you can run `python main.py -h` for help. 

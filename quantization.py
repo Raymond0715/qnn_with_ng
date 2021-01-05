@@ -23,7 +23,7 @@ def QuantilizeFnSTE(Wbit, Abit):
         elif Wbit == 32:
             output = w
         else:   # QNN
-            max = CeilPower2(tf.reduce_max(tf.abs(w)))
+            max = tf.reduce_max(tf.abs(w))
             w = w / max
             output =  max * RoundPower2(w, Wbit)
         # output = w
@@ -43,7 +43,7 @@ def QuantilizeFnSTE(Wbit, Abit):
         elif Abit == 32:
             output = x
         else:   # QNN
-            max = CeilPower2(tf.reduce_max(tf.abs(x)))
+            max = tf.reduce_max(tf.abs(x))
             x = x / max
             output = max * RoundPower2(x, Abit)
         # output = x
