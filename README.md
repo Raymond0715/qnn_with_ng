@@ -15,7 +15,7 @@
 
 ## Run command
 
-Clone and run following command. Specify `quantilize` for full and quantized NN. `ste` stand for "straight forward estimator" and `ng` stand for natural gradient introduced in "optimizing quantized neural network with natural gradient" .
+Clone and run following command. Specify `quantilize` for full and quantized NN. `ste` stand for "straight forward estimator" and `ng` stand for natural gradient.
 
 ```sh
 python main.py \
@@ -52,6 +52,7 @@ python main.py \
 	--log_file ste.csv \
 	--ckpt_dir resnet20_cifar10 \
 	--ckpt_file full.h5
+
 ```
 
 Besides, you can run `python main.py -h` for help. 
